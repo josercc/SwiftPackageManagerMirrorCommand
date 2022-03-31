@@ -3,7 +3,7 @@ import Foundation
 import SwiftShell
 import Alamofire
 
-let server = "http://swiftmirror.vipgz1.91tunnel.com/api/mirror"
+let server = "http://122.112.144.84/mirror"
 
 struct SwiftPackageManagerMirrorCommand: ParsableCommand {
     func run() throws {
@@ -36,7 +36,11 @@ struct SwiftPackageManagerMirrorCommand: ParsableCommand {
             guard !dependencies.contains(text) else {
                 return
             }
+            print(text)
             dependencies.append(text)
+        }
+        guard dependencies.count > 0 else {
+            throw ExitCode.failure
         }
         for dependency in dependencies {
             /// 获取镜像地址
@@ -58,7 +62,6 @@ struct SwiftPackageManagerMirrorCommand: ParsableCommand {
         let semphore = DispatchSemaphore(value: 0)
         var mirrorUrl:String?
         AF.request(server,
-                   method: .post,
                    parameters: ["url":url])
         .responseString(queue:.global(qos: .background)) { response in
             defer {
