@@ -44,19 +44,29 @@ struct ManyMirror {
         }
         for dependency in dependencies {
             if let mirror = mirrors.filter({$0.origin == dependency}).first {
-                try context.runAndPrint("swift", "package", "config","set-mirror", "--original-url", dependency, "--mirror-url", mirror.mirror)
+                try setMirror(context: context,
+                              original: dependency,
+                              mirror: mirror.mirror)
             }
             /// 获取镜像地址
             print("正在获取 \(dependency) 镜像地址")
-            let mirrorUrl = try getMirror(from: dependency)
-            /// 查询镜像是否存在
-            guard try checkMirroRepoExit(url: mirrorUrl) else {
-                print("[ERROR] 镜像\(mirrorUrl)还在制作中，大约需要30分钟。请稍后重试!")
+            do {
+                let mirrorUrl = try getMirror(from: dependency)
+                /// 查询镜像是否存在
+                guard try checkMirroRepoExit(url: mirrorUrl) else {
+                    print("[ERROR] 镜像\(mirrorUrl)还在制作中，大约需要30分钟。请稍后重试!")
+                    continue
+                }
+                print("镜像\(mirrorUrl)已经存在 准备设置镜像服务")
+                /// swift package config set-mirror --original-url original --mirror-url mirror
+    //            try context.runAndPrint("swift", "package", "config","set-mirror", "--original-url", dependency, "--mirror-url", mirrorUrl)
+                try setMirror(context: context,
+                              original: dependency,
+                              mirror: mirrorUrl)
+            } catch(let e) {
                 continue
             }
-            print("镜像\(mirrorUrl)已经存在 准备设置镜像服务")
-            /// swift package config set-mirror --original-url original --mirror-url mirror
-            try context.runAndPrint("swift", "package", "config","set-mirror", "--original-url", dependency, "--mirror-url", mirrorUrl)
+            
         }
         print("DONE")
     }
@@ -109,4 +119,9 @@ struct ManyMirror {
         semphore.wait()
         return exit
     }
+}
+
+func setMirror(context:CustomContext, original:String, mirror:String) throws {
+    print("swift package config set-mirror --original-url \(original) --mirror-url \(mirror)")
+    try context.runAndPrint("swift", "package", "config","set-mirror", "--original-url", original, "--mirror-url", mirror)
 }

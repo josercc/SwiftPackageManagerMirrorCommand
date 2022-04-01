@@ -53,7 +53,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "init"
+            argument = "csv /Users/king/Downloads/vapor.csv"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
