@@ -25,6 +25,14 @@ struct ManyMirror {
             throw ExitCode.failure
         }
         
+        let mirrorDataPath = try mirrorDataPath()
+        let mirrorJson = try String(contentsOfFile: mirrorDataPath)
+        guard let mirrorData = mirrorJson.data(using: .utf8) else {
+            throw ExitCode.failure
+        }
+        let mirrorResponse = try JSONDecoder().decode(Response<[Mirror]>.self,
+                                                      from: mirrorData)
+        let mirrors = mirrorResponse.data ?? []
         
         /// 获取当前项目的依赖 swift package show-dependencies
         var context = CustomContext()
@@ -35,6 +43,9 @@ struct ManyMirror {
             throw ExitCode.failure
         }
         for dependency in dependencies {
+            if let mirror = mirrors.filter({$0.origin == dependency}).first {
+                try context.runAndPrint("swift", "package", "config","set-mirror", "--original-url", dependency, "--mirror-url", mirror.mirror)
+            }
             /// 获取镜像地址
             print("正在获取 \(dependency) 镜像地址")
             let mirrorUrl = try getMirror(from: dependency)
@@ -85,10 +96,11 @@ struct ManyMirror {
     func checkMirroRepoExit(url:String) throws -> Bool {
         let semphore = DispatchSemaphore(value: 0)
         var exit:Bool = false
-        AF.request(url).response(queue:.global(qos: .background)) { response in
+        AF.request(url).responseDecodable(of: Response<String>.self, queue: .global(qos: .background)) { response in
             defer {
                 semphore.signal()
             }
+            print(response.value?.message ?? "")
             guard let statusCode = response.response?.statusCode else {
                 return
             }

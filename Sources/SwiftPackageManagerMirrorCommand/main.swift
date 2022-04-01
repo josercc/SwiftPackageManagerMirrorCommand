@@ -3,27 +3,21 @@ import Foundation
 import SwiftShell
 import Alamofire
 
-let server = "http://122.112.144.84:8080/mirror"
-
+let server = "http://122.112.144.84:8080"
 struct SwiftPackageManagerMirrorCommand: ParsableCommand {
     
     static var configuration: CommandConfiguration {
         .init(commandName:"spmmc", subcommands: [
-            CSVMirror.self
+            CSVMirror.self,
+            Init.self,
         ])
     }
-    
-    
-    
-    
     
     func run() throws {
         
     }
-    
-    
 }
-SwiftPackageManagerMirrorCommand.main(["csv","/Users/admin/Downloads/data.csv"])
+SwiftPackageManagerMirrorCommand.main()
 
 struct MirrorResult<T: Codable>: Codable {
     let code:Int
