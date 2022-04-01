@@ -64,7 +64,7 @@ struct ManyMirror {
     func getMirror(from url:String) throws -> String {
         let semphore = DispatchSemaphore(value: 0)
         var mirrorUrl:String?
-        AF.request(server,
+        AF.request(server + "/mirror",
                    parameters: ["url":url])
         .responseString(queue:.global(qos: .background)) { response in
             defer {

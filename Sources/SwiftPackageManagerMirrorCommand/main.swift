@@ -10,7 +10,8 @@ struct SwiftPackageManagerMirrorCommand: ParsableCommand {
         .init(commandName:"spmmc", subcommands: [
             CSVMirror.self,
             Init.self,
-        ])
+            Add.self,
+        ], defaultSubcommand: Add.self)
     }
     
     func run() throws {
