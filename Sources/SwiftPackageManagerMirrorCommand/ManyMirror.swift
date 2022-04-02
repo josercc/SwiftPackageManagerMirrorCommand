@@ -63,7 +63,7 @@ struct ManyMirror {
                 try setMirror(context: context,
                               original: dependency,
                               mirror: mirrorUrl)
-            } catch(let _) {
+            } catch(_) {
                 continue
             }
             
